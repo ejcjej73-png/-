@@ -1,0 +1,34 @@
+name: build-exe
+
+# 실행 방법: 저장소의 Actions 탭 → 'build-exe' → Run workflow
+# (또는 main 브랜치에 파일을 올리면 자동 실행)
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-windows-exe:
+    runs-on: windows-latest        # 윈도우에서 빌드해야 윈도우용 exe가 나옵니다
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build EXE
+        run: pyinstaller --onefile --name news_scrap news_scrap.py
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: news_scrap-exe
+          path: dist/news_scrap.exe
